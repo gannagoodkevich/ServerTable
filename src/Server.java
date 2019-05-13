@@ -1,3 +1,5 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -6,66 +8,65 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-
 
 public class Server {
 
-	private static Socket clientSocket; // сокет для общения
-	private static ServerSocket server; // серверсокет
-	private static BufferedReader in; // поток чтения из сокета
-	private static BufferedWriter out; // поток записи в сокет	
+	private static Socket clientSocket;
+	private static ServerSocket server;
+	private static BufferedReader in;
+	private static BufferedWriter out;
 	public JFrame mainFrame;
-	
-	Server(){
+	JPanel mainPanel;
+	boolean flag = true; 
+	JLabel helloLable;
+
+	Server() {
 		mainFrame = new JFrame();
-		
+
 	}
-	
+
 	public static void main(String[] args) throws UnknownHostException {
 		Server mainserver = new Server();
 		run(mainserver, 500, 500);
 		InetAddress adresse = InetAddress.getLocalHost();
-		JPanel mainPanel = new JPanel();
-		mainserver.mainFrame.add(mainPanel);
-		JLabel helloLable = new JLabel("Сервер запущен!");
-		JLabel adddressLable  = new JLabel("Вот адрес: " + adresse.getHostAddress());
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.add(helloLable);
-		mainPanel.add(adddressLable);
+		mainserver.mainPanel = new JPanel();
+		mainserver.mainFrame.add(mainserver.mainPanel);
+		mainserver.helloLable = new JLabel("Сервер запущен!");
+		JLabel adddressLable = new JLabel("Вот адрес: " + adresse.getHostAddress());
+		mainserver.mainPanel.setLayout(new BoxLayout(mainserver.mainPanel, BoxLayout.Y_AXIS));
+		mainserver.mainPanel.add(mainserver.helloLable);
+		mainserver.mainPanel.add(adddressLable);
 		JLabel test = new JLabel("Answer");
-		// не долго думая отвечает клиенту
-		mainPanel.add(test);
+		JButton endButton = new JButton("end");
+		mainserver.mainPanel.add(endButton);
+		mainserver.listenerAdd(endButton, mainserver);
+		mainserver.mainPanel.add(test);
 		try {
 			try {
-				server = new ServerSocket(4004); // серверсокет прослушивает порт 4004
-				 // хорошо бы серверу
-				// объявить о своем запуске
-				clientSocket = server.accept(); // accept() будет ждать пока
-				// кто-нибудь не захочет подключиться
-				try { // установив связь и воссоздав сокет для общения с клиентом можно перейти
-						// к созданию потоков ввода/вывода.
-						// теперь мы можем принимать сообщения
-					in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-					// и отправлять
-					out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-					out.write("Вот адрес: ");
-					out.write(adresse.getHostName() + " " + adresse.getHostAddress() + "\n");
-					//String word = in.readLine(); // ждём пока клиент что-нибудь нам напишет
-					//System.out.println(word);
-					test.setText(in.readLine());
-					out.write("Привет, это Сервер!" + "\n");
-					out.flush(); // выталкиваем все из буфера
-
-				} finally { // в любом случае сокет будет закрыт
-					System.out.println("До свидания");
-					clientSocket.close();
-					// потоки тоже хорошо бы закрыть
-					in.close();
-					out.close();
+				server = new ServerSocket(4004);
+				while (mainserver.flag) {
+					clientSocket = server.accept();
+					try {
+						in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+						out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+						out.write("Вот адрес: ");
+						out.write(adresse.getHostName() + " " + adresse.getHostAddress() + "\n");
+						test.setText(in.readLine());
+						System.out.println(mainserver.flag);
+						out.flush();
+					} finally {
+						System.out.println("До свидания");
+						clientSocket.close();
+						in.close();
+						out.close();
+					}
 				}
 			} finally {
 				System.out.println("Сервер закрыт!");
@@ -76,6 +77,17 @@ public class Server {
 		}
 	}
 	
+	public void listenerAdd(JButton button, Server mainserver) {
+		ActionListener actionListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainserver.helloLable.setText("Server end!");
+				System.out.println("Server End");
+				mainserver.flag = false;
+			}
+		};
+		button.addActionListener(actionListener);
+	}
+
 	public static void run(final Server frame, final int wigth, final int hight) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
