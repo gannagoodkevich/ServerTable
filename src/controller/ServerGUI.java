@@ -82,7 +82,6 @@ public class ServerGUI{
 	void appendEvent(String str) {
 		event.append(str);
 		event.setCaretPosition(chat.getText().length() - 1);
-		
 	}
 	
 	public void beginServer(JButton button, ServerGUI sg) {
