@@ -43,7 +43,9 @@ public class Server {
 	private int port;
 	// the boolean that will be turned of to stop the server
 	private boolean keepGoing;
-	
+
+	String fileName;
+
 	/*
 	 * 025 server constructor that receive the port to listen to for connection as
 	 * parameter 026 in console 027
@@ -133,27 +135,19 @@ public class Server {
 	/*
 	 * 115 to broadcast a message to all Clients 116
 	 */
-	/*private synchronized void broadcast(String message) {
-		// add HH:mm:ss and \n to the message
-		// String time = sdf.format(new Date());
-		String messageLf = message + "\n";
-		// display message on console or GUI
-		if (sg == null)
-			System.out.print(messageLf);
-		else
-			sg.appendRoom(messageLf); // append in the room window
-
-		// we loop in reverse order in case we would have to remove a Client
-		// because it has disconnected
-		for (int i = al.size(); --i >= 0;) {
-			ClientThread ct = al.get(i);
-			// try to write to the Client if it fails remove it from the list
-			if (!ct.writeMsg(messageLf)) {
-				al.remove(i);
-				display("Disconnected Client " + ct.username + " removed from list.");
-			}
-		}
-	}*/
+	/*
+	 * private synchronized void broadcast(String message) { // add HH:mm:ss and \n
+	 * to the message // String time = sdf.format(new Date()); String messageLf =
+	 * message + "\n"; // display message on console or GUI if (sg == null)
+	 * System.out.print(messageLf); else sg.appendRoom(messageLf); // append in the
+	 * room window
+	 * 
+	 * // we loop in reverse order in case we would have to remove a Client //
+	 * because it has disconnected for (int i = al.size(); --i >= 0;) { ClientThread
+	 * ct = al.get(i); // try to write to the Client if it fails remove it from the
+	 * list if (!ct.writeMsg(messageLf)) { al.remove(i);
+	 * display("Disconnected Client " + ct.username + " removed from list."); } } }
+	 */
 
 	// for a client who logoff using the LOGOUT message
 	synchronized void remove(int id) {
@@ -245,38 +239,53 @@ public class Server {
 					break;
 				}
 				// the messaage part of the ChatMessage
-				
 
 				// Switch on the type of message receive
 				switch (cm.getType()) {
 				case ChatMessage.FILE_NEW:
 					List<String> lecturer = cm.getLecturer();
 					createNewFile(cm.getMessage(), lecturer);
-					//broadcast(username + ": " + message);
-					//writeMsg("Server is answering!!!");
+					fileName = cm.getMessage() + ".xml";
+					// broadcast(username + ": " + message);
+					// writeMsg("Server is answering!!!");
 					break;
 				case ChatMessage.FILE_OPEN:
-					//String message = cm.getMessage();
+					// String message = cm.getMessage();
+					System.out.println("FILE_OPEN in server switching");
 					openFile(cm.getMessage());
-					//broadcast(username + ": " + message);
-					
+					fileName = cm.getMessage() + ".xml";
+					// broadcast(username + ": " + message);
+
 					break;
-				case ChatMessage.SEARCH:
-					display(username + " disconnected with a LOGOUT message.");
-					keepGoing = false;
+				case ChatMessage.ADD_LECT:
+					// String message = cm.getMessage();
+					System.out.println("LECT_SERVER in server switching");
+					System.out.println(cm.getUni().size());
+					addLect(cm.getUni());
+					// broadcast(username + ": " + message);
+
 					break;
-				case ChatMessage.DELETE:
-					/*writeMsg("List of the users connected at " + sdf.format(new Date()) + "\n");
-					// scan all the users connected
-					for (int i = 0; i < al.size(); ++i) {
-						ClientThread ct = al.get(i);
-						writeMsg((i + 1) + ") " + ct.username);
-					}
-					break;*/
+				case ChatMessage.SEARCH_FAC:
+					display(username + "disconnected with a LOGOUT message.");
+					System.out.println("search by faculty");
+					break;
+				case ChatMessage.SEARCH_NAME:
+					System.out.println("search by name");
+					break;
+				case ChatMessage.SEARCH_YEAR:
+					System.out.println("search by year");
+					break;
+				case ChatMessage.DELETE_FAC:
+					System.out.println("delete by faculty");
+					break;
+				case ChatMessage.DELETE_NAME:
+					System.out.println("delete by faculty");
+					break;
+				case ChatMessage.DELETE_YEAR:
+					System.out.println("delete by faculty");
+					break;
 				}
 			}
-			// remove myself from the arrayList containing the list of the
-			// connected Clients
 			remove(id);
 			close();
 		}
@@ -307,7 +316,7 @@ public class Server {
 
 		public void createNewFile(String name, List<String> lecturer) {
 			String fileSeparator = System.getProperty("file.separator");
-			String relativePath = "C:\\Users\\Андрей\\git\\Servertable\\Servertable\\"  + name + ".xml";
+			String relativePath = "C:\\Users\\Андрей\\git\\Servertable\\Servertable\\" + name + ".xml";
 			File newFile = new File(relativePath);
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder documentBuilder;
@@ -329,13 +338,12 @@ public class Server {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			currentUniversity = new Uni("New Uni");
 			Faculty fac = new Faculty(lecturer.get(3));
 			Department dep = new Department(lecturer.get(4));
-			Lecturer lect = new Lecturer(lecturer.get(0), lecturer.get(1), lecturer.get(2),
-					lecturer.get(5), lecturer.get(6),
-					lecturer.get(7));
+			Lecturer lect = new Lecturer(lecturer.get(0), lecturer.get(1), lecturer.get(2), lecturer.get(5),
+					lecturer.get(6), lecturer.get(7));
 			currentUniversity.addFaculty(fac);
 			fac.addDepartment(dep);
 			dep.addLecturer(lect);
@@ -345,17 +353,39 @@ public class Server {
 			} catch (ParserConfigurationException | TransformerException e1) {
 				e1.printStackTrace();
 			}
-			
+
 		}
-		
+
+		public void addLect(List<String[]> lecturer) {
+			currentUniversity = new Uni("New Uni");
+			for (String[] lect : lecturer) {
+				Faculty fac = new Faculty(lect[3]);
+				Department dep = new Department(lect[4]);
+				Lecturer lectuer = new Lecturer(lect[0], lect[1], lect[2], lect[5],
+						lect[6], lect[7]);
+			
+			currentUniversity.addFaculty(fac);
+			fac.addDepartment(dep);
+			dep.addLecturer(lectuer);
+			}
+			writeMsg(lecturer);
+			//System.out.println(currentUniversity.getFaculty(0).getTitle());
+			try {
+				DOMExample dom = new DOMExample(currentUniversity, fileName);
+			} catch (ParserConfigurationException | TransformerException e1) {
+				e1.printStackTrace();
+			}
+
+		}
+
 		public void openFile(String name) {
 			SAXExample sax;
 			try {
 				sax = new SAXExample(name);
 				currentUniversity = sax.uni;
 				// there
-				System.out.println(currentUniversity.getFaculty(0).getTitle() + "open");
-				//writeMsg(name);
+				System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
+				// writeMsg(name);
 				UniversityController unicontr = new UniversityController();
 				List<String[]> uniList = unicontr.getUniversity(currentUniversity);
 				writeMsg(uniList);
@@ -389,7 +419,6 @@ public class Server {
 			}
 			return true;
 		}
-		
-		
+
 	}
 }

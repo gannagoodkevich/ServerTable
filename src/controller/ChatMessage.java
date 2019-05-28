@@ -23,12 +23,18 @@ public class ChatMessage implements Serializable {
 	// LOGOUT to disconnect from the Server
 	public static final int FILE_NEW = 0;
 	public static final int FILE_OPEN = 1;
-	public static final int SEARCH = 2;
-	public static final int DELETE = 3;
+	public static final int SEARCH_FAC = 2;
+	public static final int SEARCH_NAME = 3;
+	public static final int SEARCH_YEAR = 4;
+	public static final int DELETE_FAC = 5;
+	public static final int DELETE_NAME = 6;
+	public static final int DELETE_YEAR = 7;
+	public static final int ADD_LECT = 8;
 	private int type;
 	private String message;
 	private List<String> lecturer;
 	private List<String[]> uni;
+	
 
 	// constructor
 	public ChatMessage(int type, String message) {
