@@ -45,6 +45,10 @@ public class Server {
 	private boolean keepGoing;
 
 	String fileName;
+	private Uni currentUniversity;
+	public int numOfRows = 10;
+	int numOfRowsEnd = numOfRows;
+	int numOfRowsStart = 0;
 
 	/*
 	 * 025 server constructor that receive the port to listen to for connection as
@@ -192,8 +196,6 @@ public class Server {
 		String username;
 		// the only type of message a will receive
 		ChatMessage cm;
-		private Uni currentUniversity;
-
 		// the date I connect
 
 		// String date;
@@ -261,10 +263,47 @@ public class Server {
 					// String message = cm.getMessage();
 					System.out.println("LECT_SERVER in server switching");
 					System.out.println(cm.getUni().size());
+					for (int i = 0; i < cm.getUni().size(); i++) {
+						System.out.println("trym" + cm.getUni().get(i)[0]);
+					}
 					addLect(cm.getUni());
 					// broadcast(username + ": " + message);
 
 					break;
+
+				case ChatMessage.TURN_LEFT:
+					// String message = cm.getMessage();
+					System.out.println("TURN_LEFT in server switching");
+					// System.out.println(cm.getUni().size());
+					turnLeft();
+					// broadcast(username + ": " + message);
+
+					break;
+				case ChatMessage.TURN_RIGHT:
+					// String message = cm.getMessage();
+					System.out.println("TURN_RIGHT in server switching");
+					// System.out.println(cm.getUni().size());
+					turnRight();
+					// broadcast(username + ": " + message);
+
+					break;
+				case ChatMessage.GO_TO_HEAD:
+					// String message = cm.getMessage();
+					System.out.println("GO_TO_HEAD in server switching");
+					// System.out.println(cm.getUni().size());
+					goToHead();
+					// broadcast(username + ": " + message);
+
+					break;
+				case ChatMessage.GO_TO_TAIL:
+					// String message = cm.getMessage();
+					System.out.println("GO_TO_TAIL in server switching");
+					// System.out.println(cm.getUni().size());
+					goToTail();
+					// broadcast(username + ": " + message);
+
+					break;
+					
 				case ChatMessage.SEARCH_FAC:
 					display(username + "disconnected with a LOGOUT message.");
 					System.out.println("search by faculty");
@@ -361,15 +400,14 @@ public class Server {
 			for (String[] lect : lecturer) {
 				Faculty fac = new Faculty(lect[3]);
 				Department dep = new Department(lect[4]);
-				Lecturer lectuer = new Lecturer(lect[0], lect[1], lect[2], lect[5],
-						lect[6], lect[7]);
-			
-			currentUniversity.addFaculty(fac);
-			fac.addDepartment(dep);
-			dep.addLecturer(lectuer);
+				Lecturer lectuer = new Lecturer(lect[0], lect[1], lect[2], lect[5], lect[6], lect[7]);
+
+				currentUniversity.addFaculty(fac);
+				fac.addDepartment(dep);
+				dep.addLecturer(lectuer);
 			}
 			writeMsg(lecturer);
-			//System.out.println(currentUniversity.getFaculty(0).getTitle());
+			// System.out.println(currentUniversity.getFaculty(0).getTitle());
 			try {
 				DOMExample dom = new DOMExample(currentUniversity, fileName);
 			} catch (ParserConfigurationException | TransformerException e1) {
@@ -420,5 +458,197 @@ public class Server {
 			return true;
 		}
 
+		private void turnLeft() {
+			UniversityController unicontr = new UniversityController();
+			System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
+			List<String[]> rowList = unicontr.getUniversity(currentUniversity);
+			// writeMsg(uniList);
+
+			String[][] data = rowList.toArray(new String[0][]);
+			/// lost data
+			// System.out.println(data[1][1]);
+			// System.out.println(t.currentUniversity.getFaculty(0).getTitle());
+			if (rowList.size() <= numOfRows) {
+				numOfRowsEnd = rowList.size();
+				numOfRowsStart = 0;
+				/*
+				 * lableNumberOfElements .setText("Number of elementson page: " + rowList.size()
+				 * + " from total " + rowList.size());
+				 * lableNumberOnPage.setText(" Number of page: " + 1 + " from " +
+				 * (rowList.size() / numOfRows + 1));
+				 */
+			} else {
+				if (numOfRowsEnd != rowList.size()) {
+					if (numOfRowsEnd <= rowList.size() - numOfRows) {
+						numOfRowsEnd += numOfRows;
+						numOfRowsStart += numOfRows;
+						/*
+						 * currPage += 1; lableNumberOnPage.setText( " Number of page: " + (currPage) +
+						 * " from " + (rowList.size() / numOfRows + 1)); lableNumberOfElements.setText(
+						 * "Number of elementson page: " + numOfRows + " from total " + rowList.size());
+						 */
+					} else {
+						numOfRowsStart = numOfRowsEnd;
+						numOfRowsEnd = rowList.size();
+						/*
+						 * currPage += 1; lableNumberOnPage.setText(" Number of page: " +
+						 * (rowList.size() / numOfRows + 1) + " from " + (rowList.size() / numOfRows +
+						 * 1)); lableNumberOfElements.setText("Number of elementson page: " +
+						 * rowList.size() % numOfRows + " from total " + rowList.size());
+						 */
+					}
+				} else {
+					numOfRowsEnd = numOfRows;
+					numOfRowsStart = 0;
+					/*
+					 * currPage = 1; lableNumberOnPage .setText(" Number of page: " + currPage +
+					 * " from " + (rowList.size() / numOfRows + 1)); lableNumberOfElements
+					 * .setText("Number of elementson page: " + numOfRows + " from total " +
+					 * rowList.size());
+					 */
+				}
+			}
+			// data = rowList.toArray(new String[0][]);
+			List<String[]> dataCurr = new ArrayList<String[]>();
+			for (int i = numOfRowsStart; i < numOfRowsEnd; i++) {
+				dataCurr.add(new String[] { (String) data[i][0], (String) data[i][1], (String) data[i][2],
+						(String) data[i][3], (String) data[i][4], (String) data[i][5] });
+			}
+			// String[][] dataCurr1 = dataCurr.toArray(new String[0][]);
+			writeMsg(dataCurr);
+			System.out.println(dataCurr.get(0)[0]);
+		}
+
+		private void turnRight() {
+			UniversityController unicontr = new UniversityController();
+			System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
+			List<String[]> rowList = unicontr.getUniversity(currentUniversity);
+			// writeMsg(uniList);
+
+			String[][] data = rowList.toArray(new String[0][]);
+			/// lost data
+			// System.out.println(data[1][1]);
+			// System.out.println(t.currentUniversity.getFaculty(0).getTitle());
+			if (rowList.size() <= numOfRows) {
+				numOfRowsEnd = rowList.size();
+				numOfRowsStart = 0;
+				/*
+				 * lableNumberOnPage.setText(" Number of page: " + 1 + " from " +
+				 * (rowList.size() / numOfRows + 1)); lableNumberOfElements
+				 * .setText("Number of elementson page: " + rowList.size() + " from total " +
+				 * rowList.size());
+				 */
+			} else {
+				if (numOfRowsEnd == numOfRows) {
+					numOfRowsEnd = rowList.size();
+					numOfRowsStart = numOfRowsEnd - rowList.size() % numOfRows;
+					/*
+					 * currPage = (rowList.size() / numOfRows + 1); lableNumberOnPage
+					 * .setText(" Number of page: " + currPage + " from " + (rowList.size() /
+					 * numOfRows + 1)); lableNumberOfElements.setText("Number of elementson page: "
+					 * + rowList.size() % numOfRows + " from total " + rowList.size());
+					 */
+				} else {
+					if (numOfRowsEnd != rowList.size()) {
+						if (numOfRowsEnd >= 2 * numOfRows) {
+							numOfRowsEnd -= numOfRows;
+							numOfRowsStart -= numOfRows;
+						} else {
+							numOfRowsStart = 0;
+							numOfRowsEnd = numOfRows;
+						}
+						/*
+						 * currPage -= 1; lableNumberOnPage.setText( " Number of page: " + currPage +
+						 * " from " + (rowList.size() / numOfRows + 1)); lableNumberOfElements.setText(
+						 * "Number of elementson page: " + numOfRows + " from total " + rowList.size());
+						 */
+					} else {
+						numOfRowsEnd = rowList.size() - rowList.size() % numOfRows;
+						numOfRowsStart = numOfRowsEnd - numOfRows;
+						/*
+						 * currPage -= 1; lableNumberOnPage.setText( " Number of page: " + currPage +
+						 * " from " + (rowList.size() / numOfRows + 1)); lableNumberOfElements.setText(
+						 * "Number of elementson page: " + numOfRows + " from total " + rowList.size());
+						 */
+					}
+				}
+			}
+			// data = rowList.toArray(new String[0][]);
+			List<String[]> dataCurr = new ArrayList<String[]>();
+			for (int i = numOfRowsStart; i < numOfRowsEnd; i++) {
+				dataCurr.add(new String[] { (String) data[i][0], (String) data[i][1], (String) data[i][2],
+						(String) data[i][3], (String) data[i][4], (String) data[i][5] });
+			}
+			// String[][] dataCurr1 = dataCurr.toArray(new String[0][]);
+			writeMsg(dataCurr);
+			System.out.println(dataCurr.get(0)[0]);
+		}
+		
+		private void goToHead() {
+			UniversityController unicontr = new UniversityController();
+			System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
+			List<String[]> rowList = unicontr.getUniversity(currentUniversity);
+			// writeMsg(uniList);
+
+			String[][] data = rowList.toArray(new String[0][]);
+			/*if (rowList.size() > numOfRows) {
+				currPage = 1;
+				lableNumberOnPage
+						.setText(" Number of page: " + currPage + " from " + (rowList.size() / numOfRows + 1));
+				lableNumberOfElements
+						.setText("Number of elementson page: " + numOfRows + " from total " + rowList.size());
+			} else {
+				currPage = 1;
+				lableNumberOnPage
+						.setText(" Number of page: " + currPage + " from " + (rowList.size() / numOfRows + 1));
+				lableNumberOfElements
+						.setText("Number of elementson page: " + rowList.size() + " from total " + rowList.size());
+			}*/
+			numOfRowsEnd = numOfRows;
+			numOfRowsStart = 0;
+			data = rowList.toArray(new String[0][]);
+			List<String[]> dataCurr = new ArrayList<String[]>();
+			for (int i = numOfRowsStart; i < numOfRowsEnd; i++) {
+				dataCurr.add(new String[] { (String) data[i][0], (String) data[i][1], (String) data[i][2],
+						(String) data[i][3], (String) data[i][4], (String) data[i][5] });
+			}
+			writeMsg(dataCurr);
+		}
+		
+		private void goToTail() {
+			UniversityController unicontr = new UniversityController();
+			System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
+			List<String[]> rowList = unicontr.getUniversity(currentUniversity);
+			// writeMsg(uniList);
+
+			String[][] data = rowList.toArray(new String[0][]);
+			if (rowList.size() % numOfRows != 0) {
+				numOfRowsEnd = rowList.size();
+				numOfRowsStart = rowList.size() - rowList.size() % numOfRows;
+				/*currPage = (rowList.size() / numOfRows + 1);
+				lableNumberOnPage
+						.setText(" Number of page: " + currPage + " from " + (rowList.size() / numOfRows + 1));
+				lableNumberOfElements.setText("Number of elementson page: " + rowList.size() % numOfRows
+						+ " from total " + rowList.size());*/
+			} else {
+				numOfRowsEnd = rowList.size();
+				numOfRowsStart = rowList.size() - numOfRows;
+				/*currPage = (rowList.size() / numOfRows + 1);
+				lableNumberOnPage
+						.setText(" Number of page: " + currPage + " from " + (rowList.size() / numOfRows + 1));
+				lableNumberOfElements
+						.setText("Number of elementson page: " + numOfRows + " from total " + rowList.size());
+*/
+			}
+			
+			data = rowList.toArray(new String[0][]);
+			List<String[]> dataCurr = new ArrayList<String[]>();
+			for (int i = numOfRowsStart; i < numOfRowsEnd; i++) {
+				dataCurr.add(new String[] { (String) data[i][0], (String) data[i][1], (String) data[i][2],
+						(String) data[i][3], (String) data[i][4], (String) data[i][5] });
+			}
+			writeMsg(dataCurr);
+		}
 	}
+
 }

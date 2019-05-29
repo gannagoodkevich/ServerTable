@@ -30,16 +30,26 @@ public class ChatMessage implements Serializable {
 	public static final int DELETE_NAME = 6;
 	public static final int DELETE_YEAR = 7;
 	public static final int ADD_LECT = 8;
+	public static final int TURN_LEFT = 9;
+	public static final int TURN_RIGHT = 10;
+	public static final int GO_TO_HEAD = 11;
+	public static final int GO_TO_TAIL = 12;
 	private int type;
 	private String message;
 	private List<String> lecturer;
 	private List<String[]> uni;
+	int numOfRows;
 	
 
 	// constructor
 	public ChatMessage(int type, String message) {
 		this.type = type;
 		this.message = message;
+	}
+	
+	public ChatMessage(int type, int numOfRows) {
+		this.type = type;
+		this.numOfRows = numOfRows;
 	}
 	
 	public ChatMessage(int type,  List<String[]> message) {
