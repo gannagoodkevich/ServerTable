@@ -35,7 +35,8 @@ public class ChatMessage implements Serializable {
 	public static final int GO_TO_HEAD = 11;
 	public static final int GO_TO_TAIL = 12;
 	private int type;
-	private String message;
+	private String message1;
+	private String message2;
 	private List<String> lecturer;
 	private List<String[]> uni;
 	int numOfRows;
@@ -44,7 +45,13 @@ public class ChatMessage implements Serializable {
 	// constructor
 	public ChatMessage(int type, String message) {
 		this.type = type;
-		this.message = message;
+		this.message1 = message;
+	}
+	
+	public ChatMessage(int type, String message1, String message2) {
+		this.type = type;
+		this.message1 = message1;
+		this.message2 = message2;
 	}
 	
 	public ChatMessage(int type, int numOfRows) {
@@ -59,7 +66,7 @@ public class ChatMessage implements Serializable {
 	
 	public ChatMessage(int type, String name, List<String> message) {
 		this.type = type;
-		this.message = name;
+		this.message1 = name;
 		this.lecturer = message;
 	}
 
@@ -70,8 +77,12 @@ public class ChatMessage implements Serializable {
 		return type;
 	}
 
-	String getMessage() {
-		return message;
+	String getFirstMessage() {
+		return message1;
+	}
+
+	String getSecondMessage() {
+		return message2;
 	}
 	
 	List<String> getLecturer(){

@@ -10,6 +10,7 @@ public class SearchController {
 
 	public List<String[]> listenerSearchByFaculty(Uni uni, String faculty, String degreeeName) {
 		List<String[]> rowList = new ArrayList<String[]>();
+		System.out.println("Uni is workng on controller" + uni.getFaculty(0).getTitle());
 		for (int indexOfCurrentDepartment = 0; indexOfCurrentDepartment < uni.getFacultyByName(faculty)
 				.getLenght(); indexOfCurrentDepartment++) {
 			if (uni.getFacultyByName(faculty).getDepartment(indexOfCurrentDepartment)

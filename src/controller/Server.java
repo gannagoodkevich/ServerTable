@@ -49,6 +49,7 @@ public class Server {
 	public int numOfRows = 10;
 	int numOfRowsEnd = numOfRows;
 	int numOfRowsStart = 0;
+	int currPage = 1;
 
 	/*
 	 * 025 server constructor that receive the port to listen to for connection as
@@ -246,16 +247,18 @@ public class Server {
 				switch (cm.getType()) {
 				case ChatMessage.FILE_NEW:
 					List<String> lecturer = cm.getLecturer();
-					createNewFile(cm.getMessage(), lecturer);
-					fileName = cm.getMessage() + ".xml";
+					createNewFile(cm.getFirstMessage(), lecturer);
+					fileName = cm.getFirstMessage();
 					// broadcast(username + ": " + message);
 					// writeMsg("Server is answering!!!");
 					break;
 				case ChatMessage.FILE_OPEN:
 					// String message = cm.getMessage();
 					System.out.println("FILE_OPEN in server switching");
-					openFile(cm.getMessage());
-					fileName = cm.getMessage() + ".xml";
+					fileName = cm.getFirstMessage();
+					String name = "C:\\Users\\Андрей\\git\\Servertable\\Servertable\\" + fileName + ".xml";
+					File newFile = new File(name);
+					openFile(name);
 					// broadcast(username + ": " + message);
 
 					break;
@@ -305,23 +308,84 @@ public class Server {
 					break;
 					
 				case ChatMessage.SEARCH_FAC:
-					display(username + "disconnected with a LOGOUT message.");
-					System.out.println("search by faculty");
+					//display(username + "disconnected with a LOGOUT message.");
+					List<String[]> answer = new ArrayList<String[]>();
+					String[] str = {"SEARCH"};
+					answer.add(str);
+					//writeMsg(answer);
+					System.out.println("search by faculty " + cm.getFirstMessage() + " " + cm.getSecondMessage());
+					List<String[]> answer1 = findByFac(cm.getFirstMessage(), cm.getSecondMessage());
+					for(int i=0; i<answer1.size(); i++) {
+						answer.add(answer1.get(i));
+					}
+					//System.out.println(answer.get(1)[3]);
+					writeMsg(answer);
+					
+					
+					//System.out.println("помогити " + answer1.get(1)[1]);
 					break;
 				case ChatMessage.SEARCH_NAME:
 					System.out.println("search by name");
+					List<String[]> answerName = new ArrayList<String[]>();
+					String[] strName = {"SEARCH"};
+					answerName.add(strName);
+					//writeMsg(answer);
+					System.out.println("search by name " + cm.getFirstMessage() + " " + cm.getSecondMessage());
+					List<String[]> answer1Name = findByName(cm.getFirstMessage(), cm.getSecondMessage());
+					for(int i=0; i<answer1Name.size(); i++) {
+						answerName.add(answer1Name.get(i));
+					}
+					//System.out.println(answer.get(1)[3]);
+					writeMsg(answerName);
 					break;
 				case ChatMessage.SEARCH_YEAR:
 					System.out.println("search by year");
+					List<String[]> answerYear = new ArrayList<String[]>();
+					String[] strYear = {"SEARCH"};
+					answerYear.add(strYear);
+					//writeMsg(answer);
+					System.out.println("search by name " + cm.getFirstMessage() + " " + cm.getSecondMessage());
+					List<String[]> answer1Year = findByYear(cm.getFirstMessage(), cm.getSecondMessage());
+					for(int i=0; i<answer1Year.size(); i++) {
+						answerYear.add(answer1Year.get(i));
+					}
+					//System.out.println(answer.get(1)[3]);
+					writeMsg(answerYear);
 					break;
 				case ChatMessage.DELETE_FAC:
 					System.out.println("delete by faculty");
+					List<String[]> answerFacD = new ArrayList<String[]>();
+					//writeMsg(answer);
+					System.out.println("delete by fac" + cm.getFirstMessage() + " " + cm.getSecondMessage());
+					Integer answer1FacD = deleteByFac(cm.getFirstMessage(), cm.getSecondMessage());
+					String[] strr = {"DELETE", answer1FacD.toString()};
+					System.out.println(strr[1]);
+					answerFacD.add(strr);
+					//System.out.println(answer.get(1)[3]);
+					writeMsg(answerFacD);
 					break;
 				case ChatMessage.DELETE_NAME:
-					System.out.println("delete by faculty");
+					System.out.println("delete by name");
+					List<String[]> answerNameD = new ArrayList<String[]>();
+					//writeMsg(answer);
+					System.out.println("search by name " + cm.getFirstMessage() + " " + cm.getSecondMessage());
+					Integer answer1NameD = deleteByName(cm.getFirstMessage(), cm.getSecondMessage());
+					String[] strNameD = {"DELETE", answer1NameD.toString()};
+					answerNameD.add(strNameD);
+					//System.out.println(answer.get(1)[3]);
+					writeMsg(answerNameD);
 					break;
 				case ChatMessage.DELETE_YEAR:
-					System.out.println("delete by faculty");
+					System.out.println("delete by year");
+					List<String[]> answerYearD = new ArrayList<String[]>();
+					//writeMsg(answer);
+					System.out.println("delete by fac" + cm.getFirstMessage() + " " + cm.getSecondMessage());
+					Integer answer1YearD = deleteByYear(cm.getFirstMessage(), cm.getSecondMessage());
+					String[] strrY = {"DELETE", answer1YearD.toString()};
+					System.out.println(strrY[1]);
+					answerYearD.add(strrY);
+					//System.out.println(answer.get(1)[3]);
+					writeMsg(answerYearD);
 					break;
 				}
 			}
@@ -415,6 +479,71 @@ public class Server {
 			}
 
 		}
+		
+		public List<String[]> findByFac(String faculty, String degree) {
+			SearchController search = new SearchController();
+			System.out.println("Uni is workng " + currentUniversity.getFaculty(0).getTitle());
+			List<String[]> lecturer = search.listenerSearchByFaculty(currentUniversity, faculty, degree);
+			return lecturer;
+			//writeMsg(lecturer);
+			// System.out.println(currentUniversity.getFaculty(0).getTitle());
+		}
+		
+		public int deleteByFac(String faculty, String degree) {
+			DeleteController search = new DeleteController();
+			System.out.println("Uni is workng " + currentUniversity.getFaculty(0).getTitle());
+			int lecturer = search.listenerSearchByFaculty(currentUniversity, faculty, degree);
+			try {
+				DOMExample dom = new DOMExample(currentUniversity, fileName);
+			} catch (ParserConfigurationException | TransformerException e1) {
+				e1.printStackTrace();
+			}
+			return lecturer;
+			//writeMsg(lecturer);
+			// System.out.println(currentUniversity.getFaculty(0).getTitle());
+		}
+		
+		public List<String[]> findByName(String department, String name) {
+			SearchController search = new SearchController();
+			System.out.println("Uni is workng " + currentUniversity.getFaculty(0).getTitle());
+			List<String[]> lecturer = search.listenerSearchByName(currentUniversity, department, name);
+			return lecturer;
+			//writeMsg(lecturer);
+			// System.out.println(currentUniversity.getFaculty(0).getTitle());
+		}
+		
+		public int deleteByName(String department, String name) {
+			DeleteController search = new DeleteController();
+			System.out.println("Uni is workng " + currentUniversity.getFaculty(0).getTitle());
+			int lecturer = search.listenerSearchByName(currentUniversity, department, name);
+			try {
+				DOMExample dom = new DOMExample(currentUniversity, fileName);
+			} catch (ParserConfigurationException | TransformerException e1) {
+				e1.printStackTrace();
+			}
+			return lecturer;
+		}
+		
+		public List<String[]> findByYear(String year1, String year2) {
+			SearchController search = new SearchController();
+			System.out.println("Uni is workng " + currentUniversity.getFaculty(0).getTitle());
+			List<String[]> lecturer = search.listenerSearchByYear(currentUniversity, year1, year2);
+			return lecturer;
+			//writeMsg(lecturer);
+			// System.out.println(currentUniversity.getFaculty(0).getTitle());
+		}
+		
+		public int deleteByYear(String year1, String year2) {
+			DeleteController search = new DeleteController();
+			System.out.println("Uni is workng " + currentUniversity.getFaculty(0).getTitle());
+			int lecturer = search.listenerSearchByYear(currentUniversity, year1, year2);
+			try {
+				DOMExample dom = new DOMExample(currentUniversity, fileName);
+			} catch (ParserConfigurationException | TransformerException e1) {
+				e1.printStackTrace();
+			}
+			return lecturer;
+		}
 
 		public void openFile(String name) {
 			SAXExample sax;
@@ -422,9 +551,10 @@ public class Server {
 				sax = new SAXExample(name);
 				currentUniversity = sax.uni;
 				// there
-				System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
+				System.out.println(currentUniversity.getFaculty(1).getTitle() + " open");
 				// writeMsg(name);
 				UniversityController unicontr = new UniversityController();
+				
 				List<String[]> uniList = unicontr.getUniversity(currentUniversity);
 				writeMsg(uniList);
 				// currentTableWithLecturers.updateTable(currentUniversity);
@@ -461,9 +591,11 @@ public class Server {
 		private void turnLeft() {
 			UniversityController unicontr = new UniversityController();
 			System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
+			String label = null;
+			String label2 = null;
 			List<String[]> rowList = unicontr.getUniversity(currentUniversity);
 			// writeMsg(uniList);
-
+			
 			String[][] data = rowList.toArray(new String[0][]);
 			/// lost data
 			// System.out.println(data[1][1]);
@@ -471,6 +603,10 @@ public class Server {
 			if (rowList.size() <= numOfRows) {
 				numOfRowsEnd = rowList.size();
 				numOfRowsStart = 0;
+				label = "Number of elementson page: " + rowList.size()
+					 + " from total " + rowList.size();
+				label2 =" Number of page: " + 1 + " from " +
+						 (rowList.size() / numOfRows + 1);
 				/*
 				 * lableNumberOfElements .setText("Number of elementson page: " + rowList.size()
 				 * + " from total " + rowList.size());
@@ -482,6 +618,10 @@ public class Server {
 					if (numOfRowsEnd <= rowList.size() - numOfRows) {
 						numOfRowsEnd += numOfRows;
 						numOfRowsStart += numOfRows;
+						currPage+=1;
+						label = " Number of page: " + (currPage) +
+								 " from " + (rowList.size() / numOfRows + 1);
+						label2 ="Number of elementson page: " + numOfRows + " from total " + rowList.size();
 						/*
 						 * currPage += 1; lableNumberOnPage.setText( " Number of page: " + (currPage) +
 						 * " from " + (rowList.size() / numOfRows + 1)); lableNumberOfElements.setText(
@@ -490,6 +630,11 @@ public class Server {
 					} else {
 						numOfRowsStart = numOfRowsEnd;
 						numOfRowsEnd = rowList.size();
+						currPage+=1;
+						label = " Number of page: " +
+								 (rowList.size() / numOfRows + 1) + " from " + (rowList.size() / numOfRows + 1);
+						label2 ="Number of elementson page: " +
+								 rowList.size() % numOfRows + " from total " + rowList.size();
 						/*
 						 * currPage += 1; lableNumberOnPage.setText(" Number of page: " +
 						 * (rowList.size() / numOfRows + 1) + " from " + (rowList.size() / numOfRows +
@@ -500,6 +645,11 @@ public class Server {
 				} else {
 					numOfRowsEnd = numOfRows;
 					numOfRowsStart = 0;
+					currPage=1;
+					label = " Number of page: " + currPage +
+							 " from " + (rowList.size() / numOfRows + 1);
+					label2 ="Number of elementson page: " + numOfRows + " from total " +
+							 rowList.size();
 					/*
 					 * currPage = 1; lableNumberOnPage .setText(" Number of page: " + currPage +
 					 * " from " + (rowList.size() / numOfRows + 1)); lableNumberOfElements
@@ -510,11 +660,13 @@ public class Server {
 			}
 			// data = rowList.toArray(new String[0][]);
 			List<String[]> dataCurr = new ArrayList<String[]>();
+			dataCurr.add(new String[] {"TURN", label, label2});
 			for (int i = numOfRowsStart; i < numOfRowsEnd; i++) {
 				dataCurr.add(new String[] { (String) data[i][0], (String) data[i][1], (String) data[i][2],
 						(String) data[i][3], (String) data[i][4], (String) data[i][5] });
 			}
 			// String[][] dataCurr1 = dataCurr.toArray(new String[0][]);
+			System.out.println(label2 + label);
 			writeMsg(dataCurr);
 			System.out.println(dataCurr.get(0)[0]);
 		}
@@ -524,7 +676,8 @@ public class Server {
 			System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
 			List<String[]> rowList = unicontr.getUniversity(currentUniversity);
 			// writeMsg(uniList);
-
+			String label = null;
+			String label2 = null;
 			String[][] data = rowList.toArray(new String[0][]);
 			/// lost data
 			// System.out.println(data[1][1]);
@@ -532,6 +685,10 @@ public class Server {
 			if (rowList.size() <= numOfRows) {
 				numOfRowsEnd = rowList.size();
 				numOfRowsStart = 0;
+				label = " Number of page: " + 1 + " from " +
+						 (rowList.size() / numOfRows + 1);
+				label2 = "Number of elementson page: " + rowList.size() + " from total " +
+						  rowList.size();
 				/*
 				 * lableNumberOnPage.setText(" Number of page: " + 1 + " from " +
 				 * (rowList.size() / numOfRows + 1)); lableNumberOfElements
@@ -542,6 +699,12 @@ public class Server {
 				if (numOfRowsEnd == numOfRows) {
 					numOfRowsEnd = rowList.size();
 					numOfRowsStart = numOfRowsEnd - rowList.size() % numOfRows;
+					currPage = (rowList.size() / numOfRows + 1);
+					label = " Number of page: " + currPage + " from " + (rowList.size() /
+							numOfRows + 1);
+					label2 = "Number of elementson page: "
+							+ rowList.size() % numOfRows + " from total " + rowList.size();
+					
 					/*
 					 * currPage = (rowList.size() / numOfRows + 1); lableNumberOnPage
 					 * .setText(" Number of page: " + currPage + " from " + (rowList.size() /
@@ -557,6 +720,10 @@ public class Server {
 							numOfRowsStart = 0;
 							numOfRowsEnd = numOfRows;
 						}
+						currPage -= 1;
+						label = " Number of page: " + currPage +
+								 " from " + (rowList.size() / numOfRows + 1);
+						label2 = "Number of elementson page: " + numOfRows + " from total " + rowList.size();
 						/*
 						 * currPage -= 1; lableNumberOnPage.setText( " Number of page: " + currPage +
 						 * " from " + (rowList.size() / numOfRows + 1)); lableNumberOfElements.setText(
@@ -565,6 +732,10 @@ public class Server {
 					} else {
 						numOfRowsEnd = rowList.size() - rowList.size() % numOfRows;
 						numOfRowsStart = numOfRowsEnd - numOfRows;
+						currPage -= 1;
+						label = " Number of page: " + currPage +
+								  " from " + (rowList.size() / numOfRows + 1);
+						label2 = "Number of elementson page: " + numOfRows + " from total " + rowList.size();
 						/*
 						 * currPage -= 1; lableNumberOnPage.setText( " Number of page: " + currPage +
 						 * " from " + (rowList.size() / numOfRows + 1)); lableNumberOfElements.setText(
@@ -575,6 +746,9 @@ public class Server {
 			}
 			// data = rowList.toArray(new String[0][]);
 			List<String[]> dataCurr = new ArrayList<String[]>();
+			dataCurr.add(new String[] {
+					"TURN", label, label2
+			});
 			for (int i = numOfRowsStart; i < numOfRowsEnd; i++) {
 				dataCurr.add(new String[] { (String) data[i][0], (String) data[i][1], (String) data[i][2],
 						(String) data[i][3], (String) data[i][4], (String) data[i][5] });

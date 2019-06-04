@@ -14,6 +14,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /*
  * The server as a GUI
@@ -24,9 +26,10 @@ public class ServerGUI {
 	private JFrame jFrame;
 	private JButton startButton;
 	private JButton stopButton;
-	private JTextArea chat, event;
+	private JTextArea event;
 	private JTextField tPortNumber;
 	private Server server;
+	private JLabel serverAdress;
 
 	ServerGUI(int port) {
 		jFrame = new JFrame("Chat Server");
@@ -42,29 +45,22 @@ public class ServerGUI {
 		north.add(startButton);
 		north.add(stopButton);
 		jFrame.add(north, BorderLayout.NORTH);
-		JPanel center = new JPanel(new GridLayout(2, 1));
-		jFrame.add(center);
-		chat = new JTextArea(80, 80);
-		chat.setEditable(false);
-		appendRoom("Chat room.\n");
-		center.add(new JScrollPane(chat));
+		JPanel center = new JPanel();
+		center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
+		center.add(new JLabel("Server adress"));
+		serverAdress = new JLabel();
+		center.add(serverAdress);
 		event = new JTextArea(80, 80);
 		event.setEditable(false);
-		appendEvent("Events log.\n");
 		center.add(new JScrollPane(event));
 		jFrame.add(center);
 		jFrame.setSize(400, 600);
 		jFrame.setVisible(true);
 	}
 
-	void appendRoom(String str) {
-		chat.append(str);
-		chat.setCaretPosition(chat.getText().length() - 1);
-	}
-
 	void appendEvent(String str) {
 		event.append(str);
-		event.setCaretPosition(chat.getText().length() - 1);
+		//event.setCaretPosition(chat.getText().length() - 1);
 	}
 
 	public void beginServer(JButton button, ServerGUI sg) {
@@ -78,6 +74,13 @@ public class ServerGUI {
 					return;
 				}
 				server = new Server(port, sg);
+				try {
+					InetAddress adresse = InetAddress.getLocalHost();
+					serverAdress.setText(adresse.getHostAddress());
+				} catch (UnknownHostException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				new ServerRunning().start();
 				tPortNumber.setEditable(false);
 			}
