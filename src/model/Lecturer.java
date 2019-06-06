@@ -31,18 +31,26 @@ public class Lecturer {
 		this.setDegree(degree);
 		this.setYear(year);
 	}
-	
+
 	public Lecturer(String name, String degreeName, String degree, String year) {
-		 String[] fullName = name.split("\\s");
-		 name = fullName[0];
-		 String surname = fullName[1];
-		 String secondName = fullName[2];
+		String[] fullName = name.split("\\s");
+		String surname = null;
+		String secondName = null;
+		if (name != null) {
+			name = fullName[0];
+		}
+		if (fullName[1] != null) {
+			surname = fullName[1];
+		}
+		if (fullName[2] != null) {
+			secondName = fullName[2];
+		}
 		this.setName(name, surname, secondName);
 		this.setDegreeName(degreeName);
 		this.setDegree(degree);
 		this.setYear(year);
 	}
-	
+
 	public void setName(String name, String surname, String secondName) {
 		this.name = name;
 		this.syrname = surname;
