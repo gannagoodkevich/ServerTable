@@ -12,11 +12,6 @@ public class Lecturer {
 		this.setName(name, surname, secondName);
 	}
 
-	Lecturer(String name, String surname, String secondName, String degree) {
-		this.setName(name, surname, secondName);
-		this.setDegree(degree);
-	}
-
 	Lecturer(Lecturer lec) {
 		this.setName(lec.getName(), lec.getSurname(), lec.getSecondName());
 		this.setDegreeName(lec.getDegreeName());
@@ -36,7 +31,18 @@ public class Lecturer {
 		this.setDegree(degree);
 		this.setYear(year);
 	}
-
+	
+	public Lecturer(String name, String degreeName, String degree, String year) {
+		 String[] fullName = name.split("\\s");
+		 name = fullName[0];
+		 String surname = fullName[1];
+		 String secondName = fullName[2];
+		this.setName(name, surname, secondName);
+		this.setDegreeName(degreeName);
+		this.setDegree(degree);
+		this.setYear(year);
+	}
+	
 	public void setName(String name, String surname, String secondName) {
 		this.name = name;
 		this.syrname = surname;

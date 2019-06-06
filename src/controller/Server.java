@@ -215,7 +215,7 @@ public class Server {
 				sInput = new ObjectInputStream(socket.getInputStream());
 				// read the username
 				username = (String) sInput.readObject();
-				display(username + " just connected.");
+				display(username + "in progress.");
 			} catch (IOException e) {
 				display("Exception creating new Input/output Streams: " + e);
 				return;
@@ -257,6 +257,7 @@ public class Server {
 					System.out.println("FILE_OPEN in server switching");
 					fileName = cm.getFirstMessage();
 					String name = "C:\\Users\\Андрей\\git\\Servertable\\Servertable\\" + fileName + ".xml";
+					fileName = name;
 					File newFile = new File(name);
 					openFile(name);
 					// broadcast(username + ": " + message);
@@ -306,7 +307,29 @@ public class Server {
 					// broadcast(username + ": " + message);
 
 					break;
+				case ChatMessage.CLOSE_SEARCH:
+					// String message = cm.getMessage();
+					System.out.println("TURN_LEFT in server switching");
+					// System.out.println(cm.getUni().size());
+					currentUniversity = new Uni("New Uni");
+					SAXExample sax;
+					try {
+						sax = new SAXExample(fileName);
+						currentUniversity = sax.uni;
+					} catch (ParserConfigurationException | SAXException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					
+					// there
+					System.out.println(currentUniversity.getFaculty(1).getTitle() + " open");
+					UniversityController unicontr = new UniversityController();
+					
+					List<String[]> uniList = unicontr.getUniversity(currentUniversity);
+					writeMsg(uniList);
+					// broadcast(username + ": " + message);
+
+					break;
 				case ChatMessage.SEARCH_FAC:
 					//display(username + "disconnected with a LOGOUT message.");
 					List<String[]> answer = new ArrayList<String[]>();
@@ -318,6 +341,19 @@ public class Server {
 					for(int i=0; i<answer1.size(); i++) {
 						answer.add(answer1.get(i));
 					}
+					currentUniversity = new Uni("New Uni");
+					for (String[] lect : answer1) {
+						Faculty fac = new Faculty(lect[0]);
+						System.out.println(lect.length);
+						Department dep = new Department(lect[1]);
+						
+						Lecturer lectuer = new Lecturer(lect[2], lect[3], lect[4], lect[5]);
+
+						currentUniversity.addFaculty(fac);
+						fac.addDepartment(dep);
+						dep.addLecturer(lectuer);
+					}
+					System.out.println(currentUniversity.getFaculty(0).getTitle());
 					//System.out.println(answer.get(1)[3]);
 					writeMsg(answer);
 					
@@ -335,6 +371,19 @@ public class Server {
 					for(int i=0; i<answer1Name.size(); i++) {
 						answerName.add(answer1Name.get(i));
 					}
+					currentUniversity = new Uni("New Uni");
+					for (String[] lect : answer1Name) {
+						Faculty fac = new Faculty(lect[0]);
+						System.out.println(lect.length);
+						Department dep = new Department(lect[1]);
+						
+						Lecturer lectuer = new Lecturer(lect[2], lect[3], lect[4], lect[5]);
+
+						currentUniversity.addFaculty(fac);
+						fac.addDepartment(dep);
+						dep.addLecturer(lectuer);
+					}
+					System.out.println(currentUniversity.getFaculty(0).getTitle());
 					//System.out.println(answer.get(1)[3]);
 					writeMsg(answerName);
 					break;
@@ -349,6 +398,20 @@ public class Server {
 					for(int i=0; i<answer1Year.size(); i++) {
 						answerYear.add(answer1Year.get(i));
 					}
+					
+					currentUniversity = new Uni("New Uni");
+					for (String[] lect : answer1Year) {
+						Faculty fac = new Faculty(lect[0]);
+						System.out.println(lect.length);
+						Department dep = new Department(lect[1]);
+						
+						Lecturer lectuer = new Lecturer(lect[2], lect[3], lect[4], lect[5]);
+
+						currentUniversity.addFaculty(fac);
+						fac.addDepartment(dep);
+						dep.addLecturer(lectuer);
+					}
+					System.out.println(currentUniversity.getFaculty(0).getTitle());
 					//System.out.println(answer.get(1)[3]);
 					writeMsg(answerYear);
 					break;

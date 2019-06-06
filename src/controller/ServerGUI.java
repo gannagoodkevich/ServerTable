@@ -14,6 +14,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -74,13 +75,7 @@ public class ServerGUI {
 					return;
 				}
 				server = new Server(port, sg);
-				try {
-					InetAddress adresse = InetAddress.getLocalHost();
-					serverAdress.setText(adresse.getHostAddress());
-				} catch (UnknownHostException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				serverAdress.setText("46.56.225.117");
 				new ServerRunning().start();
 				tPortNumber.setEditable(false);
 			}
