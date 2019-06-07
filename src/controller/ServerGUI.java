@@ -1,29 +1,21 @@
 package controller;
 
 import javax.swing.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
-import org.w3c.dom.Document;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+
 
 /*
  * The server as a GUI
  */
 public class ServerGUI {
 
-	private static final long serialVersionUID = 1L;
+	
+	private static final Logger logger = Logger.getLogger(ServerGUI.class);
 	private JFrame jFrame;
 	private JButton startButton;
 	private JButton stopButton;
@@ -31,8 +23,11 @@ public class ServerGUI {
 	private JTextField tPortNumber;
 	private Server server;
 	private JLabel serverAdress;
+	
+	
 
 	ServerGUI(int port) {
+		logger.debug("processTask");
 		jFrame = new JFrame("Chat Server");
 		server = null;
 		JPanel north = new JPanel();
@@ -70,8 +65,10 @@ public class ServerGUI {
 				int port;
 				try {
 					port = Integer.parseInt(tPortNumber.getText().trim());
+					logger.info("OK");
 				} catch (Exception er) {
 					appendEvent("Invalid port number");
+					logger.info("Invalid port number", er);
 					return;
 				}
 				server = new Server(port, sg);
@@ -109,6 +106,7 @@ public class ServerGUI {
 			port = Integer.parseInt(tPortNumber.getText().trim());
 		} catch (Exception er) {
 			appendEvent("Invalid port number");
+			logger.info("Invalid port number");
 			return;
 		}
 		server = new Server(port, this);
@@ -117,6 +115,7 @@ public class ServerGUI {
 	}
 
 	public static void main(String[] arg) {
+		BasicConfigurator.configure();
 		new ServerGUI(1500);
 	}
 

@@ -1,6 +1,5 @@
 package controller;
 import java.io.*;
-import java.util.ArrayList;
 /*
 03
  * This class defines the different type of messages that will be exchanged between the

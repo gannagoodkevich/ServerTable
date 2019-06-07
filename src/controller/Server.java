@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -32,6 +33,7 @@ import model.Uni;
  */
 public class Server {
 	// a unique ID for each connection
+	private static final Logger logger = Logger.getLogger(ServerGUI.class);
 	private static int uniqueId;
 	// an ArrayList to keep the list of the Client
 	private ArrayList<ClientThread> al;
@@ -71,6 +73,7 @@ public class Server {
 	}
 
 	public void start() {
+		logger.debug("Server is working");
 		keepGoing = true;
 		/* create socket server and wait for connection requests */
 		try {
@@ -402,7 +405,7 @@ public class Server {
 						fac.addDepartment(dep);
 						dep.addLecturer(lectuer);
 					}
-					System.out.println(currentUniversity.getFaculty(0).getTitle());
+					//System.out.println(currentUniversity.getFaculty(0).getTitle());
 					// System.out.println(answer.get(1)[3]);
 					writeMsg(answerName);
 					break;
@@ -430,7 +433,7 @@ public class Server {
 						fac.addDepartment(dep);
 						dep.addLecturer(lectuer);
 					}
-					System.out.println(currentUniversity.getFaculty(0).getTitle());
+					//System.out.println(currentUniversity.getFaculty(0).getTitle());
 					// System.out.println(answer.get(1)[3]);
 					writeMsg(answerYear);
 					break;
@@ -678,7 +681,7 @@ public class Server {
 
 		private void turnLeft() {
 			UniversityController unicontr = new UniversityController();
-			System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
+			//System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
 			String label = null;
 			String label2 = null;
 			List<String[]> rowList = unicontr.getUniversity(currentUniversity);
@@ -839,8 +842,13 @@ public class Server {
 			System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
 			List<String[]> rowList = unicontr.getUniversity(currentUniversity);
 			// writeMsg(uniList);
-
+			currPage = 1;
 			String[][] data = rowList.toArray(new String[0][]);
+			String label = " Number of page: " + currPage + " from " +
+					  (rowList.size() / numOfRows + 1);
+			String label2 = "Number of elementson page: "
+					  + numOfRows + " from total " + rowList.size();
+			
 			/*
 			 * if (rowList.size() > numOfRows) { currPage = 1; lableNumberOnPage
 			 * .setText(" Number of page: " + currPage + " from " + (rowList.size() /
@@ -855,6 +863,7 @@ public class Server {
 			numOfRowsStart = 0;
 			data = rowList.toArray(new String[0][]);
 			List<String[]> dataCurr = new ArrayList<String[]>();
+			dataCurr.add(new String[] { "TURN", label, label2 });
 			for (int i = numOfRowsStart; i < numOfRowsEnd; i++) {
 				dataCurr.add(new String[] { (String) data[i][0], (String) data[i][1], (String) data[i][2],
 						(String) data[i][3], (String) data[i][4], (String) data[i][5] });
@@ -868,30 +877,44 @@ public class Server {
 			System.out.println(currentUniversity.getFaculty(0).getTitle() + " open");
 			List<String[]> rowList = unicontr.getUniversity(currentUniversity);
 			// writeMsg(uniList);
-
 			String[][] data = rowList.toArray(new String[0][]);
+			String label = null;
+			String label2 = null;
 			if (rowList.size() % numOfRows != 0) {
 				numOfRowsEnd = rowList.size();
 				numOfRowsStart = rowList.size() - rowList.size() % numOfRows;
+				currPage = (rowList.size() / numOfRows + 1);
 				/*
 				 * currPage = (rowList.size() / numOfRows + 1); lableNumberOnPage
 				 * .setText(" Number of page: " + currPage + " from " + (rowList.size() /
 				 * numOfRows + 1)); lableNumberOfElements.setText("Number of elementson page: "
 				 * + rowList.size() % numOfRows + " from total " + rowList.size());
 				 */
+				label = " Number of page: " + currPage + " from " + (rowList.size() /
+						 numOfRows + 1);
+				label2 = "Number of elementson page: "
+						 + rowList.size() % numOfRows + " from total " + rowList.size();
 			} else {
 				numOfRowsEnd = rowList.size();
 				numOfRowsStart = rowList.size() - numOfRows;
+				currPage = (rowList.size() / numOfRows + 1);
 				/*
 				 * currPage = (rowList.size() / numOfRows + 1); lableNumberOnPage
 				 * .setText(" Number of page: " + currPage + " from " + (rowList.size() /
 				 * numOfRows + 1)); lableNumberOfElements .setText("Number of elementson page: "
 				 * + numOfRows + " from total " + rowList.size());
 				 */
+				label = " Number of page: " + currPage + " from " + (rowList.size() /
+					 numOfRows + 1);
+				label2 = "Number of elementson page: "
+					 + numOfRows + " from total " + rowList.size();
 			}
+			
+			
 
 			data = rowList.toArray(new String[0][]);
 			List<String[]> dataCurr = new ArrayList<String[]>();
+			dataCurr.add(new String[] { "TURN", label, label2 });
 			for (int i = numOfRowsStart; i < numOfRowsEnd; i++) {
 				dataCurr.add(new String[] { (String) data[i][0], (String) data[i][1], (String) data[i][2],
 						(String) data[i][3], (String) data[i][4], (String) data[i][5] });
